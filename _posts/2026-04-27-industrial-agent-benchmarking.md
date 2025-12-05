@@ -38,16 +38,21 @@ toc:
 
 # Introduction
 
-Large Language Model (LLM) agents have quickly become the default way researchers test “autonomous” reasoning, planning, and multi-step tool use. Yet almost all widely-used benchmarks evaluate tasks that are far removed from real-world industrial systems — web navigation, coding tasks, synthetic puzzles, or curated IT workflows. In practice, industrial operations demand something more difficult: **multi-agent coordination over heterogeneous telemetry, failure modes, work orders, and safety-critical tasks — all under privacy constraints.**
-
+Large Language Model (LLM) agents have quickly become the default way researchers test “autonomous” reasoning, planning, and multi-step tool use. Yet almost all widely used benchmarks evaluate tasks that are far removed from real industrial systems such as web navigation, coding tasks, synthetic puzzles, or curated IT workflows. In practice, industrial operations demand something more difficult: **multi-agent coordination over heterogeneous telemetry, failure modes, work orders, and safety-critical tasks, all under privacy constraints.**
 To understand whether current agents can survive this environment, we built a two-part evaluation ecosystem:
 
-1. **AssetOpsBench** — a multi-modal industrial agent benchmark grounded in real sensor telemetry, failure models, and maintenance workflows :contentReference[oaicite:0]{index=0}  
-2. **AssetOpsBench-Live** — a real-time, privacy-preserving, Codabench-powered competition platform we deployed to 225+ users, yielding over 300 code-submitted agent evaluations :contentReference[oaicite:1]{index=1}  
+1. **AssetOpsBench** — a multi-modal industrial agent benchmark grounded in real sensor telemetry, failure models, and maintenance workflows.  
+2. **AssetOpsBench-Live** — a real-time, privacy-preserving, Codabench-powered competition platform we deployed to 225+ users, yielding over 300 code-submitted agent evaluations. 
 
-This blog post presents what we learned after systematically evaluating LLM agents — not via prompt logs, but through **real code, real trajectories, and real industrial tasks**.
+This blog post presents what we learned after systematically evaluating LLM agents, not via prompt logs, but through **real code, real trajectories, and real industrial tasks**.
 
 The outcome is blunt: **current agentic AI is far less reliable than leaderboard scores suggest.** The challenge surfaces failure modes that traditional agent benchmarks simply never expose.
+
+<figure>
+<img src="../assets/img/assetopsbench.png" alt="Failure mode distribution" width="80%">
+  <figcaption><b>Figure 1.</b>Architecture of the Multi-Agent System: Time Series Foundation Model (TSFM) Agent,
+Failure Mode Sensor Relations (FMSR) Agent,Work Order (WO) Agent</figcaption>
+</figure>
 
 ---
 
@@ -114,7 +119,7 @@ Every agent run is scored along six axes:
 5. **Clarity and justification**  
 6. **Hallucination rate**  
 
-These metrics are essential because agents routinely “sound correct” without doing the correct work — a recurring theme we quantify later.
+These metrics are essential because agents routinely “sound correct” without doing the correct work which is a recurring theme we quantify later.
 
 ---
 
@@ -144,17 +149,26 @@ This transforms the benchmark into a **community-scale evaluation ecosystem**.
 AssetOpsBench-Live extends AssetOpsBench into an online, reproducible competition environment.
 
 ## Pipeline Architecture
+<figure>
+  <img src="../assets/img/combined_architecture.png"
+       alt="AssetOpsBench-Live System Architecture and Failure Mode Visualization"
+       style="width:100%; max-width:1100px;">
 
-The full pipeline (see system diagram on page 2 of the AAAI demo paper) includes:
+  <figcaption>
+    <b>Figure.</b> AssetOpsBench-Live: (left) System architecture integrating AssetOpsBench with Codabench, 
+    showing local development, global evaluation, and feedback; 
+    (right) visualization of clustered failure modes.
+  </figcaption>
+</figure>
 
-1. **Local simulated environment** (CouchDB, reference agents, telemetry, alerts, failure modes)  
-2. **Containerized agent submission** (1 .py + 1 .json)  
-3. **Submission pre-validation**  
-4. **Execution on public and hidden scenarios**  
-5. **Evaluation using LLM-as-Judge with six metrics**  
-6. **Automated failure-mode discovery**  
-7. **Return of aggregated scores and clustered failures**  
 
+The full pipeline (see system diagram) includes a high-level description of the workflow, which consists of three key steps:
+
+1. **Step 1:** Users build a Planning or Execution agent, run example scenarios locally, containerize it as a ZIP, and submit to Codabench for evaluation.
+
+2. **Step 2:** Submissions are validated to ensure exactly one .py and one .json file (with required keys), then executed on one public scenario (previously runnable locally) and several hidden track-specific scenarios.
+ 
+3. **Step 3:**  Covers scoring, result generation, status updates, and robust error handling. Evaluation provides scenario-level and model-level analyses across the six dimensions included in Section 3.2. 
 This pipeline allows anyone to evaluate their agent realistically without accessing private data.
 
 ## Hidden Scenarios and Privacy Constraints
@@ -169,23 +183,60 @@ Codabench enables:
 
 This was essential for wide community participation.
 
-## Methodology for Selecting Development vs Testing Instances
+## Two Tracks
 
-We partitioned scenarios into:
+The competition was conducted in two distinct tracks, each designed to stress-test different aspects of multi-agent reasoning and execution.
 
-- **development set**: accessible via local simulator  
-- **hidden test set**: exclusively used in Codabench evaluation
+### **Track 1: Planning-Oriented Multi-Agent Orchestration**
 
-Instance selection followed three principles:
+This track challenged participants to design prompts that convert complex multi-agent interactions into clear, structured DAG-style plans. Successful agents needed to demonstrate correct sequencing, communication across agents, selective tool usage, fallback behavior, and overall orchestration quality.
 
-1. **Coverage** across IoT, TSFM, FMSR, WO, and multi-agent workflows  
-2. **Difficulty stratification** based on known historical failure rates  
-3. **Drift, missing data, and rare-event inclusion** to reflect real industrial dynamics  
+### **Track 2: Execution-Oriented Dynamic Multi-Agent Workflow**
 
-This prevents overfitting and encourages robust reasoning strategies.
+Track 2 focused on the execution side. Participants were asked to move beyond rigid sequential pipelines and develop adaptive, fault-tolerant workflows capable of parallel operation, multi-agent collaboration, shared context propagation, and dynamic decision paths that respond to evolving task states.
 
 ---
 
+## Methodology for Selecting Development vs Testing Instances
+
+### **Track 1 Feedback Summary**
+
+Track 1 served as the foundation for analyzing how agents behave under realistic, multi-step industrial constraints. Each submission was evaluated across all six dimensions using a privacy-preserving LLM-as-Judge protocol.
+
+Even without revealing execution traces, the evaluation system produced actionable diagnostic signals by analyzing tool-invocation patterns, intermediate outputs, and reasoning structures grounded in real telemetry and work-order data.
+
+The resulting failure clusters exposed failure modes that almost never surface in synthetic benchmarks:
+- missing-data handling failures  
+- verification inconsistencies  
+- reasoning–action mismatches  
+- hallucinations  
+- improper or unsafe tool usage  
+
+This structured feedback loop allowed developers to pinpoint whether weaknesses stemmed from planning, agent coordination, or execution logic. Ultimately, Track 1 demonstrated the value of iterative, failure-mode–driven refinement: agents became more robust only after developers understood how drift, ambiguity, and multi-hop dependencies break naive agent designs.
+
+
+
+### **Track 2 Utterance Selection**
+
+Every utterance in AssetOpsBench-Live belongs to a specific operational category—intent interpretation, alert triage, meter analytics, maintenance recommendations, multi-agent instructions, or contextual reasoning. Track 1’s utterances were manually curated to ensure balanced representation across these categories and to incorporate realistic issues such as telemetry gaps, ambiguous alerts, and procedural constraints.
+
+For Track 2, we expanded the dataset using a controlled semantic-neighbor strategy:
+
+1. **For each Track-1 utterance**, we identified its top semantic neighbors *within the same operational category*.  
+2. We **filtered out** any neighbors already used in Track 1.  
+3. We **selected the closest unused neighbor** as the Track-2 counterpart.
+
+This procedure generated paired prompts that share operational grounding but differ in phrasing, contextual cues, or linguistic structure—forcing agents to generalize rather than memorize.
+
+The resulting Track-2 dataset maintains:
+- balanced task-type distribution  
+- controlled semantic diversity  
+- robustness against overfitting  
+- realistic phrasing-drift challenges  
+
+This methodology ensures that agents are evaluated not only on correctness, but also on **consistency, reasoning stability, and resilience to subtle linguistic variation**, all of which are essential for real industrial deployments.
+
+---
 # Community Results: 225 Users, 300+ Agents, One Reality Check
 
 Over the course of the evaluation:
