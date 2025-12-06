@@ -29,6 +29,7 @@ toc:
       - name: Leaderboard Behavior
       - name: Observed Failure Patterns
       - name: Emergent Failure Modes
+      - name: Evaluation and Ranking Methodology
   - name: Case Study: Missing Clarifying Questions and Its Impact
   - name: What We Learned About Industrial Agents
   - name: Implications for Agentic AI
@@ -112,12 +113,12 @@ This explicit structuring allows *procedural* evaluation instead of subjective g
 
 Every agent run is scored along six axes:
 
-1. **Task completeness**  
-2. **Data retrieval accuracy**  
-3. **Result verification**  
-4. **Action sequence correctness**  
-5. **Clarity and justification**  
-6. **Hallucination rate**  
+1. **Task Completion** — Did the agent finish the task?
+2. **Retrieval Accuracy** — Did it fetch the correct sensor/asset data?
+3. **Result Verification** — Is the technical output correct?
+4. **Action Sequence Correctness** — Were tools invoked in a logical order?
+5. **Clarity & Justification** — Is the reasoning interpretable to operators?
+6. **Hallucination Rate** — Did it avoid fabricating data?
 
 These metrics are essential because agents routinely “sound correct” without doing the correct work which is a recurring theme we quantify later.
 
@@ -295,6 +296,137 @@ This underscores the need for *adaptive* taxonomies as agent complexity increase
 
 ---
 
+# Evaluation and Ranking Methodology
+
+This section defines the official scoring, selection, and ranking workflow used in the AssetOpsBench-Live multi-agent challenge. The design centers on a privacy-preserving **LLM-as-a-Judge** evaluation protocol that prioritizes correctness, safety, and deployability rather than simple text matching.
+
+## 1. Continuous Evaluation on Public Scenarios
+
+During the active competition phase, each submitted containerized agent is evaluated on **11 scenarios**:
+- **1 public reference scenario**
+- **10 dynamic hidden scenarios** that change for every submission
+
+Each scenario is scored across six binary criteria (1 = Pass, 0 = Fail) included in the evaluation framework.
+
+### Score Calculation
+
+Each submission receives a **Score_Public**, defined as:
+
+`Score_Public = ( Σ(Passed Criteria) / (Total Scenarios × 6) ) × 100`
+
+
+- **Total scenarios:** 11  
+- **Maximum possible points:** 66  
+
+Participants also receive **clustered diagnostic feedback** (e.g., *Reasoning–Action Mismatch*, *Missing-Data Handling Error*) to iteratively refine their agents without revealing private industrial data.
+
+---
+
+## 2. Selection of the "Best Submission"
+
+To prevent overfitting to dynamic public scenarios, exactly **one submission per team** is selected for final evaluation.
+
+**Selection rule:** the submission with the **highest Score_Public** during the competition window.
+
+Only this frozen container is used for the private evaluation phase.
+
+---
+
+## 3. Final Evaluation on Private Scenarios
+
+The frozen agent is then evaluated on a held-out set of **10 private scenarios**, identical across teams to ensure a fair final benchmark.
+
+Two metrics are computed:
+
+### A. Score_Private (0–100)
+Computed using the same six-dimensional binary scoring framework as Score_Public.
+
+### B. Tau-match (τ-match) (0–1)
+A semantic trajectory similarity metric comparing the agent’s reasoning sequence to a human-authored **Gold Standard**.  
+This captures whether the agent *thought correctly*, not just whether it produced the right final answer.
+
+---
+
+## 4. Composite Track Scoring
+
+Each track (Planning and Execution) receives a composite score:
+
+`Composite_Track = 0.60 × Score_Public + 0.30 × Score_Private + 0.10 × Tau-match`
+
+
+This weighting reflects:
+- performance during the live competition,
+- generalization to private scenarios,
+- reasoning quality.
+
+---
+
+## 5. Final Weighted Ranking
+
+Industrial deployments prioritize **reliable execution** over planning alone.  
+Therefore, the final score aggregates track performance with execution weighted higher:
+
+`Final Score = 0.40 × Composite_Planning + 0.60 × Composite_Execution`
+
+
+Teams are ranked in descending order of this Final Score.
+
+---
+
+## 6. Tie-Breaking Rule
+
+If teams tie on Final Score:
+
+1. **Primary tie-breaker:** Higher Composite_Execution score  
+2. **Secondary tie-breaker:** If identical, ranks are shared  
+
+---
+
+## Observations from the Final Results
+
+<figure>
+  <img src="../assets/img/R1.png"
+       alt="Final results"
+       style="width:100%; max-width:1100px;">
+
+  <figcaption>
+    <b>Figure.</b> Add figure caption.
+  </figcaption>
+</figure>
+
+- **Planning track:** larger variation (Std Dev ≈ 9.6), reflecting diverse reasoning strategies  
+- **Execution track:** tighter clustering (Std Dev ≈ 5.7), suggesting greater consistency once a plan is defined  
+- **Overall:** mean (53.81) and median (53.65) are nearly identical → a highly balanced competition  
+
+---
+
+## Impact of the Feedback Mechanism
+
+We analyzed how team performance evolved across submissions using first-vs-best score curves, submission count correlations, and improvement distributions.
+
+<figure>
+  <img src="../assets/img/R2.png"
+       alt="Final results"
+       style="width:100%; max-width:1100px;">
+
+  <figcaption>
+    <b>Figure.</b> Add figure caption.
+  </figcaption>
+</figure>
+
+Key findings:
+
+- Most teams **significantly improved** from their first to best submissions, often by **20–50 points**
+- More iterations correlated with stronger peak performance  
+- Iterative refinement based on diagnostic feedback clearly accelerated learning  
+
+These trends show that the **feedback-driven evaluation loop** was essential for helping participants:
+- identify failure modes,
+- refine tool usage,
+- correct reasoning patterns,
+- and progressively improve multi-agent reliability.
+
+---
 # Case Study: Missing Clarifying Questions and Its Impact
 
 One concrete insight from the challenge:
