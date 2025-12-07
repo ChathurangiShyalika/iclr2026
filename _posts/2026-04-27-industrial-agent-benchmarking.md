@@ -35,6 +35,7 @@ toc:
   - name: Implications for Agentic AI
   - name: Future Directions
   - name: Conclusion
+  - name: References
 ---
 
 # Introduction
@@ -42,7 +43,7 @@ toc:
 Large Language Model (LLM) agents have quickly become the default way researchers test “autonomous” reasoning, planning, and multi-step tool use. Yet almost all widely used benchmarks evaluate tasks that are far removed from real industrial systems such as web navigation, coding tasks, synthetic puzzles, or curated IT workflows. In practice, industrial operations demand something more difficult: **multi-agent coordination over heterogeneous telemetry, failure modes, work orders, and safety-critical tasks, all under privacy constraints.**
 To understand whether current agents can survive this environment, we built a two-part evaluation ecosystem:
 
-1. **AssetOpsBench** — a multi-modal industrial agent benchmark grounded in real sensor telemetry, failure models, and maintenance workflows.  
+1. **AssetOpsBench** — a multi-modal industrial agent benchmark grounded in real sensor telemetry, failure models, and maintenance workflows [@assetopsbench2025].  
 2. **AssetOpsBench-Live** — a real-time, privacy-preserving, Codabench-powered competition platform we deployed to 225+ users, yielding over 300 code-submitted agent evaluations. 
 
 This blog post presents what we learned after systematically evaluating LLM agents, not via prompt logs, but through **real code, real trajectories, and real industrial tasks**.
@@ -312,8 +313,9 @@ Each scenario is scored across six binary criteria (1 = Pass, 0 = Fail) included
 
 Each submission receives a **Score_Public**, defined as:
 
-`Score_Public = ( Σ(Passed Criteria) / (Total Scenarios × 6) ) × 100`
-
+`
+Score_Public = ( Σ(Passed Criteria) / (Total Scenarios × 6) ) × 100`
+`
 
 - **Total scenarios:** 11  
 - **Maximum possible points:** 66  
@@ -500,3 +502,6 @@ The results are unequivocal:
 **Agentic AI is promising — but not yet reliable for real-world industrial operations.  
 Robust evaluation is the missing link, and community-driven benchmarks are the path forward.**
 
+---
+
+# References
