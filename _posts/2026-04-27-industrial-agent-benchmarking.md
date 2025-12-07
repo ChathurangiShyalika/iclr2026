@@ -250,6 +250,18 @@ Over the course of the evaluation:
 
 This is one of the largest-scale industrial agent evaluations to date.
 
+## Participation Insights and Competition Dynamics
+
+The AssetOpsBench-Live challenge ran continuously over a three-month window, allowing participants to iteratively refine their agents while receiving structured, privacy-preserving diagnostic feedback. This long-running format produced several notable patterns:
+
+- **Sustained participation:** Hundreds of submissions arrived steadily throughout the competition, reflecting sustained engagement over the full duration of the challenge. By lowering the barrier to entry with container templates, sample agents, and clear instructions for extending the agent codebase, we enabled both newcomers and experienced practitioners to participate effectively.
+
+- **Developer experience improvements:** By providing a lightweight entry point for extending or creating new agents, we ensured that participants did not need deep familiarity with industrial systems to begin experimenting. This broadened the contributor base and allowed teams to focus on reasoning strategies instead of infrastructure setup.
+
+- **Submission distribution:** Although we cannot reveal platform URLs or identifiable metadata, aggregated distributions showed diverse iteration behaviors across teams. Some participants submitted frequently, steadily improving their agents through diagnostic feedback, while others converged quickly with only a few targeted submissions. These heterogeneous usage patterns align with the feedback-driven design of AssetOpsBench-Live.
+
+These participation dynamics demonstrate that real-world industrial evaluation can be made accessible without sacrificing rigor, enabling a broad community to meaningfully engage with multi-agent system development.
+
 ## Leaderboard Behavior
 
 We evaluated leading frontier and open-source models:
