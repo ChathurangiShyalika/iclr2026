@@ -44,7 +44,7 @@ Large Language Model (LLM) agents have quickly become the default way researcher
 To understand whether current agents can survive this environment, we built a two-part evaluation ecosystem:
 
 1. **AssetOpsBench** — a multi-modal industrial agent benchmark grounded in real sensor telemetry, failure models, and maintenance workflows [@assetopsbench2025].  
-2. **AssetOpsBench-Live** — a real-time, privacy-preserving, Codabench-powered competition platform we deployed to 225+ users, yielding over 300 code-submitted agent evaluations. 
+2. **AssetOpsBench-Live** — a real-time, privacy-preserving, Codabench-powered competition platform we deployed to 225+ users, yielding over 300 code-submitted agent evaluations [@assetopsbenchlive2026]. 
 
 This blog post presents what we learned after systematically evaluating LLM agents, not via prompt logs, but through **real code, real trajectories, and real industrial tasks**.
 
@@ -502,6 +502,3 @@ The results are unequivocal:
 **Agentic AI is promising — but not yet reliable for real-world industrial operations.  
 Robust evaluation is the missing link, and community-driven benchmarks are the path forward.**
 
----
-
-# References
